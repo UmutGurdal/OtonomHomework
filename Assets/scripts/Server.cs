@@ -10,26 +10,25 @@ using System.IO;
 
 public class Server : MonoBehaviour
 {
-    //General Init
+
     private List<ServerClient> clients;
     private List<int> disconnectIndex;
 
-    //Camera Variables
     private Camera MainCam;
 
     [Header("Server Settings")]
-    public int Port = 55001;
+    [SerializeField] private int Port = 55001;
     private TcpListener server;
     private bool serverStarted;
 
-    // MatlabVariables
     private float[] myFloat = new float[6];
+
     private void Awake()
     {
         MainCam = Camera.main;
     }
 
-    // Use this for initialization
+
     void Start()
     {
         clients = new List<ServerClient>();
@@ -48,11 +47,9 @@ public class Server : MonoBehaviour
         {
             Debug.Log("Socket Error " + e.Message);
         }
-
-        InvokeRepeating("UpdateLoop", 0f, 0.003f);
     }
 
-    private void UpdateLoop()
+    private void Update()
     {
         if (!serverStarted)
             return;
@@ -61,7 +58,7 @@ public class Server : MonoBehaviour
 
         for (int c = 0; c < clients.Count; c++)
         {
-            //Check if clients are connected
+
             if (!isConnected(clients[c].tcp))
             {
                 clients[c].tcp.Close();
@@ -69,19 +66,18 @@ public class Server : MonoBehaviour
                 Debug.Log(clients[c].clientName + " has disconnected from the server");
                 continue;
             }
-            // Check for data from client
+
             else
             {
-                Debug.LogWarning("isConnected = true");
+
                 NetworkStream s = clients[c].tcp.GetStream();
                 if (s.DataAvailable)
                 {
                     byte[] RecievedString = new byte[sizeof(float) * 8];
-                    Debug.LogWarning("data avaliable");
 
                     if (RecievedString != null)
                     {
-                        Debug.LogWarning("string recieved");
+
                         s.Read(RecievedString, 0, sizeof(float) * 8);
                         myFloat = ConvertBytes2Float(RecievedString);
                         Debug.LogError(myFloat[3]);
@@ -94,7 +90,6 @@ public class Server : MonoBehaviour
             }
         }
 
-        //Clean up Disconnected Clients
         for (int i = 0; i < disconnectIndex.Count; i++)
         {
             clients.RemoveAt(disconnectIndex[i]);
@@ -112,26 +107,11 @@ public class Server : MonoBehaviour
     //Checks if client is connected
     private bool isConnected(TcpClient c)
     {
-        try
-        {
-            if (c != null && c.Client != null && c.Client.Connected)
-            { //Makes sure the client is connected
-                if (c.Client.Poll(0, SelectMode.SelectRead))
-                {         //Polls the Client for activity
-                    return !(c.Client.Receive(new byte[1], SocketFlags.Peek) == 0); //Checks for response
-                }
-                return true;
-            }
-            else
-                return false;
-        }
-        catch
-        {
-            return false;
-        }
+        if (c != null && c.Client != null && c.Client.Connected) return true;
+        else return false;
     }
 
-    //Begins connection with client
+
     private void AcceptServerClient(IAsyncResult ar)
     {
         TcpListener listener = (TcpListener)ar.AsyncState;
@@ -147,7 +127,6 @@ public class Server : MonoBehaviour
         server.BeginAcceptTcpClient(AcceptServerClient, server);
     }
 
-    //Try to close all the connections gracefully
     void OnApplicationQuit()
     {
         for (int i = 0; i < clients.Count; i++)
@@ -161,35 +140,6 @@ public class Server : MonoBehaviour
         }
         Debug.Log("Connections Closed");
     }
-
-    //Sends out data
-    public void OutgoingData(ServerClient c, byte[] data)
-    {
-        NetworkStream ClientStream = c.tcp.GetStream();
-        try
-        {
-            ClientStream.Write(data, 0, data.Length);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("Could not write to client.\n Error:" + e);
-        }
-    }
-
-    // Matlab used NED right-handed coordinate system
-    // +x forward [optical axis]
-    // +y right
-    // +z down
-
-    // Unity uses a wild left-handed coordinate system
-    // +x right
-    // +y up
-    // +z forward [optical axis]
-
-    //               matlab    unity
-    // forward         x        z
-    // right           y        x
-    // down            z        -y
 
     private void MoveCamera(float[] pose)
     {
