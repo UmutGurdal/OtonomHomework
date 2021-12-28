@@ -14,7 +14,7 @@ public class Server : MonoBehaviour
     private List<ServerClient> clients;
     private List<int> disconnectIndex;
 
-    private Camera MainCam;
+    [SerializeField] private Transform interactionObject;
 
     [Header("Server Settings")]
     [SerializeField] private int Port = 55001;
@@ -23,10 +23,6 @@ public class Server : MonoBehaviour
 
     private float[] myFloat = new float[6];
 
-    private void Awake()
-    {
-        MainCam = Camera.main;
-    }
 
 
     void Start()
@@ -64,29 +60,25 @@ public class Server : MonoBehaviour
                 clients[c].tcp.Close();
                 disconnectIndex.Add(c);
                 Debug.Log(clients[c].clientName + " has disconnected from the server");
-                continue;
             }
 
             else
             {
-
                 NetworkStream s = clients[c].tcp.GetStream();
-                if (s.DataAvailable)
-                {
-                    byte[] RecievedString = new byte[sizeof(float) * 8];
 
-                    if (RecievedString != null)
-                    {
+                if (!s.DataAvailable) return;
 
-                        s.Read(RecievedString, 0, sizeof(float) * 8);
-                        myFloat = ConvertBytes2Float(RecievedString);
-                        Debug.LogError(myFloat[3]);
+                byte[] RecievedString = new byte[sizeof(float) * 8];
 
-                        MoveCamera(myFloat);
+                if (RecievedString == null) return;
 
-                    }
-                    s.Flush();
-                }
+                s.Read(RecievedString, 0, sizeof(float) * 8);
+                myFloat = ConvertBytes2Float(RecievedString);
+                Debug.LogError(myFloat[3]);
+
+                MoveCamera(myFloat);
+
+                s.Flush();
             }
         }
 
@@ -152,14 +144,14 @@ public class Server : MonoBehaviour
         float y_rot = pose[4];
         float x_rot = pose[5];
 
-        //Vector3 matlabTranslate = new Vector3(y_trans, -z_trans, x_trans);
-        // perform translation
-        //ClientObj.transform.position = transform.TransformVector(matlabTranslate);
+        Vector3 positionVector = new Vector3(x_trans, y_trans, z_trans);
 
-        // perform rotation in yaw, pitch, roll order while converting to left hand coordinate system.
-        MainCam.gameObject.transform.rotation = Quaternion.AngleAxis(z_rot, Vector3.up) *       // yaw [z]
-                                       Quaternion.AngleAxis(-y_rot, Vector3.right) *    // pitch [y]
-                                       Quaternion.AngleAxis(-x_rot, Vector3.forward);  // roll [x]
+        interactionObject.position = positionVector;
+
+
+        interactionObject.rotation = Quaternion.AngleAxis(z_rot, Vector3.up) *       // yaw [z]
+                                        Quaternion.AngleAxis(-y_rot, Vector3.right) *    // pitch [y]
+                                        Quaternion.AngleAxis(-x_rot, Vector3.forward);  // roll [x]
     }
 }
 

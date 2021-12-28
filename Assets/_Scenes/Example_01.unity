@@ -864,6 +864,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d71ebbddc0d80245a4ae5dbd1d32cc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactionObject: {fileID: 869741}
   Port: 55002
 --- !u!4 &1803694709
 Transform:
