@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: e8ed1d86db2826b4f80d008c7b03d053, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.55588627, g: 0.21187627, b: 0.84876454, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -242,10 +242,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 199517368}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7bb3536d0a95b9d418c7f091e804a58e, type: 3}
+  m_Script: {fileID: 11500000, guid: dde9256cfae706c4d999773579211923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   InteractionObject: {fileID: 321302443}
+  inputType: 1
 --- !u!4 &199517370
 Transform:
   m_ObjectHideFlags: 0
@@ -326,7 +327,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 54073660b2a69004b86124f2ece42f92, type: 2}
+  - {fileID: 2100000, guid: 8cbd326b547c6e24ba2652a5b85344c6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

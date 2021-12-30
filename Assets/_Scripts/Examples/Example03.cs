@@ -17,8 +17,6 @@ public class Example03 : MonoBehaviour
 
     void Update()
     {
-        if (!Server.ins.IsConnected) return;
-
         MoveObject();
     }
 
@@ -32,6 +30,8 @@ public class Example03 : MonoBehaviour
                 break;
 
             case InputType.LocalKeyboard:
+                movement.x = Input.GetAxis("Horizontal");
+                movement.y = Input.GetAxis("Vertical");
                 moveDir = new Vector3(movement.x, 0, movement.y);
                 InteractionObject.position += moveDir.normalized * speed * Time.deltaTime;
                 break;
