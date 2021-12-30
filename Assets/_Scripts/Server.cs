@@ -10,20 +10,24 @@ using System.IO;
 
 public class Server : MonoBehaviour
 {
+    public static Server ins;
 
     private List<ServerClient> clients;
     private List<int> disconnectIndex;
-
-    [SerializeField] private Transform interactionObject;
 
     [Header("Server Settings")]
     [SerializeField] private int Port = 55001;
     private TcpListener server;
     private bool serverStarted;
 
-    private float[] myFloat = new float[6];
+    [Space][Header("PublicVariables")]
+    public bool IsConnected;
+    public float[] ClientFloats = new float[6];
 
-
+    private void Awake()
+    {
+        ins = this;
+    }
 
     void Start()
     {
@@ -54,8 +58,8 @@ public class Server : MonoBehaviour
 
         for (int c = 0; c < clients.Count; c++)
         {
-
-            if (!isConnected(clients[c].tcp))
+            CheckConnection(clients[c].tcp);
+            if (!IsConnected)
             {
                 clients[c].tcp.Close();
                 disconnectIndex.Add(c);
@@ -68,16 +72,12 @@ public class Server : MonoBehaviour
 
                 if (!s.DataAvailable) return;
 
-                byte[] RecievedString = new byte[sizeof(float) * 8];
+                byte[] RecievedString = new byte[sizeof(float) * ClientFloats.Length];
 
                 if (RecievedString == null) return;
 
-                s.Read(RecievedString, 0, sizeof(float) * 8);
-                myFloat = ConvertBytes2Float(RecievedString);
-                Debug.LogError(myFloat[3]);
-
-                MoveCamera(myFloat);
-
+                s.Read(RecievedString, 0, sizeof(float) * ClientFloats.Length);
+                ClientFloats = ConvertBytes2Float(RecievedString);
                 s.Flush();
             }
         }
@@ -96,11 +96,11 @@ public class Server : MonoBehaviour
         return floatArray;
     }
 
-    //Checks if client is connected
-    private bool isConnected(TcpClient c)
+    
+    private void CheckConnection(TcpClient c)
     {
-        if (c != null && c.Client != null && c.Client.Connected) return true;
-        else return false;
+        if (c != null && c.Client != null && c.Client.Connected) IsConnected = true;
+        else IsConnected = false;
     }
 
 
@@ -131,27 +131,6 @@ public class Server : MonoBehaviour
             catch { }
         }
         Debug.Log("Connections Closed");
-    }
-
-    private void MoveCamera(float[] pose)
-    {
-        Debug.LogWarning("MoveCamCalled");
-        // x,y,z,yaw[z],pitch[y],roll[x]
-        float x_trans = pose[0];
-        float y_trans = pose[1];
-        float z_trans = pose[2];
-        float z_rot = pose[3];
-        float y_rot = pose[4];
-        float x_rot = pose[5];
-
-        Vector3 positionVector = new Vector3(x_trans, y_trans, z_trans);
-
-        interactionObject.position = positionVector;
-
-
-        interactionObject.rotation = Quaternion.AngleAxis(z_rot, Vector3.up) *       // yaw [z]
-                                        Quaternion.AngleAxis(-y_rot, Vector3.right) *    // pitch [y]
-                                        Quaternion.AngleAxis(-x_rot, Vector3.forward);  // roll [x]
     }
 }
 
