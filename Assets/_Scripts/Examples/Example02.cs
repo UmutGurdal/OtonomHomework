@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class Example02 : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] private Transform InteractionObject;
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (!Server.ins.IsConnected) return;
+
+        MoveObject();
+    }
+
+    private void MoveObject()
+    {
+        InteractionObject.position = new Vector3(Server.ins.ClientFloats[3], Server.ins.ClientFloats[4], Server.ins.ClientFloats[5]);
     }
 }
