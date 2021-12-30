@@ -27,6 +27,7 @@ public class Server : MonoBehaviour
     private void Awake()
     {
         ins = this;
+        Application.targetFrameRate = 60;
     }
 
     void Start()
