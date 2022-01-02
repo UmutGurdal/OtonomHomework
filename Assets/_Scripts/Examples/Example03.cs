@@ -10,30 +10,48 @@ public class Example03 : MonoBehaviour
 {
     [SerializeField] private Transform InteractionObject;
     [SerializeField] private InputType inputType;
+    [SerializeField] private float speed = 5, rotSpeed = 45;
 
-    private float speed = 5;
+    private float rot;
     private Vector2 movement;
+    private Rigidbody rb;
 
-    void Update()
+    private void Awake()
+    {
+        rb = InteractionObject.gameObject.GetComponent<Rigidbody>();    
+    }
+
+    private void Update()
+    {
+        switch (inputType)
+        {
+
+            case InputType.Matlab:
+                movement.x = Server.ins.ClientFloats[0];
+                movement.y = Server.ins.ClientFloats[2];
+                break;
+
+            case InputType.LocalKeyboard:
+                movement.x = Input.GetAxis("Horizontal");
+                movement.y = Input.GetAxis("Vertical");
+                break;
+        }
+    }
+
+    void FixedUpdate()
     {
         MoveObject();
     }
 
     private void MoveObject()
     {
-        switch (inputType) 
-        {
-            case InputType.Matlab:
-                Vector3 moveDir = new Vector3(Server.ins.ClientFloats[0], 0, Server.ins.ClientFloats[2]);
-                InteractionObject.position += moveDir.normalized * speed * Time.deltaTime;
-                break;
+        Vector3 moveDir;
 
-            case InputType.LocalKeyboard:
-                movement.x = Input.GetAxis("Horizontal");
-                movement.y = Input.GetAxis("Vertical");
-                moveDir = new Vector3(movement.x, 0, movement.y);
-                InteractionObject.position += moveDir.normalized * speed * Time.deltaTime;
-                break;
-        }
+        moveDir = InteractionObject.transform.forward * movement.y;
+        rot += transform.rotation.y + (movement.x * rotSpeed * Time.deltaTime);
+
+        InteractionObject.rotation = Quaternion.Euler(0, rot, 0);
+
+        rb.AddForce(moveDir.normalized * speed, ForceMode.Force);
     }
 }
